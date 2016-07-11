@@ -35,20 +35,26 @@ class RoundTest < Minitest::Test
     assert_equal 1, @round.number_correct
   end
 
+  def test_current_card_changes_with_each_guess
+    assert_equal "Juneau", @round.current_card.answer
+    recorded_guess = @round.record_guess("Juneau")
+    assert_equal "93,000,000", @round.current_card.answer
+  end
+
+  def test_it_doesnt_count_an_incorrect_answer
+    @round.record_guess("Fairbanks")
+    assert_equal 0, @round.number_correct
+    @round.record_guess("93,000,000")
+    assert_equal 1, @round.number_correct
+    assert_equal 2, @round.guesses.count
+    assert_equal "incorrect.", @round.guesses.first.feedback
+    assert_equal "correct.", @round.guesses.last.feedback
+  end
+
+  def test_it_calculates_percent_correct
+    @round.record_guess("Fairbanks")
+    @round.record_guess("93,000,000")
+    assert_equal "50% Correct", @round.percent_correct
+  end
+
 end
-
-
-# round.number_correct
-# => 1
-# round.current_card
-# => #<Card:0x007ffdf1820a90 @answer="93,000,000", @question="Approximately how many miles are in one astronomical unit?">
-# round.record_guess("2")
-# => #<Guess:0x007ffdf19c8a00 @card=#<Card:0x007ffdf1820a90 @answer="93,000,000", @question="Approximately how many miles are in one astronomical unit?">, @response="2">
-# round.guesses.count
-# => 2
-# round.guesses.last.feedback
-# => "Incorrect."
-# round.number_correct
-# => 1
-# round.percent_correct
-# => 50
